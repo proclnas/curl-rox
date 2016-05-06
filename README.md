@@ -1,5 +1,6 @@
 # Curl Rox: Just another curl wrapper for webCrawling purposes
 
+[![Build Status](https://api.travis-ci.org/proclnas/curl-rox.svg?branch=master)](https://travis-ci.org/proclnas/curl-rox)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/proclnas/curl-rox/blob/master/LICENSE)
 
 PHP Curl Rox Class is an object-oriented wrapper of the PHP cURL extension targeting webCrawling or similar tasks like api consuming.
@@ -10,7 +11,7 @@ PHP Curl Rox Class is an object-oriented wrapper of the PHP cURL extension targe
 - [Requirements](#requirements)
 - [How to use](#how-to-use)
 - [Methods](#methods)
-- [Contribute](#contribute)
+- [Todo](#todo)
 - [License] (#license)
 
 ---
@@ -210,7 +211,7 @@ Curl::setCallback($callable)
 Curl::debugTo($file)
 ```
 
-## TODO:
+## Todo
 
  - Add cases to PHPUnit test
  - Better validation on setters
