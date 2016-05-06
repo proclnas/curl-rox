@@ -28,7 +28,7 @@ To install PHP Curl Rox, Just:
 
 ### How to use
 
-- GET Request
+#### GET Request
 
 ```php
 require '/vendor/autoload.php'
@@ -46,7 +46,7 @@ catch (Exception $e) {
 }
 ```
 
-- POST Request
+#### POST Request
 
 ```php
 
@@ -62,7 +62,7 @@ try {
 }
 ```
 
-- JSON parsing
+#### JSON parsing
 
 Passing true to Curl::getHttpResponse automatically calls a json_decode($http_response, true) to the response
 
@@ -83,7 +83,7 @@ catch (Exception $e) {
 }
 ```
 
-- Parsing with dom (scraping all links in the page)
+#### Parsing with dom (scraping all links in the page)
 
 CurlRox response extends [\DiDom\Document::loadHtml](https://github.com/Imangazaliev/DiDOM), allowing easy interaction with dom
 using the (\DiDom\Document $dom) parameter.
@@ -128,7 +128,7 @@ Link found: /advanced_search?hl=pt&fg=1
 
 ---
 
-- Check for 200' http code response (ok response)
+#### Check for 200' http code response (ok response)
 
 ```php
 
@@ -156,7 +156,7 @@ $webCrawler->setCallback(function($http_response, \DiDom\Document $dom, \CurlRox
 }
 ```
 
-- Save response to file (Debug reasons)
+#### Save response to file (Debug reasons)
 
 ```php
 
@@ -178,7 +178,7 @@ try {
 Curl::__construct($uri = null)
 Curl::__destruct()
 Curl::Uri($uri)
-Curl::getUri
+Curl::getUri()
 Curl::setCookieFile($cookie_file);
 Curl::getCookieFile()
 Curl::setUserAgent($user_agent)
