@@ -2,6 +2,7 @@
 
 [![Build Status](https://api.travis-ci.org/proclnas/curl-rox.svg?branch=master)](https://travis-ci.org/proclnas/curl-rox)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/proclnas/curl-rox/blob/master/LICENSE)
+[![Packagist](https://img.shields.io/badge/packagist-install-brightgreen.svg)](https://packagist.org/packages/proclnas/curl-rox)
 
 PHP Curl Rox Class is an object-oriented wrapper of the PHP cURL extension targeting webCrawling or similar tasks like api consuming.
 
