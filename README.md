@@ -139,12 +139,12 @@ try {
     $r = $webCrawler->Uri('http://fake-links.org/')
                     ->getRequest();
                     
-$webCrawler->setCallback(function($http_response, \DiDom\Document $dom, \CurlRox\Curl $curl_rox){
+$webCrawler->setCallback(function($http_response, \DiDom\Document $dom, \CurlRox\Curl $curl_r){
         
         // Check http code
-        if (!$pwc->ok())
+        if (!$curl_r->ok())
             exit (
-                sprintf('Error reaching %s, http_code: %s' . PHP_EOL, $pwc->getUri(), $pwc->getHttpInfo('http_code'))
+                sprintf('Error reaching %s, http_code: %s' . PHP_EOL, $curl_r->getUri(), $curl_r->getHttpInfo('http_code'))
             );
 
         $elements = $dom->find('a');
