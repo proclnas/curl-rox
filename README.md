@@ -21,7 +21,17 @@ PHP Curl Rox Class is an object-oriented wrapper of the PHP cURL extension targe
 
 To install PHP Curl Rox, Just:
 
-    $ composer require proclnas/curl-rox
+```bash
+# clone the repository
+git clone https://github.com/proclnas/curl-rox.git
+cd curl-rox
+
+# install dependencies
+composer install
+
+# or require via composer
+composer require proclnas/curl-rox
+```
     
 ### Requirements
 
