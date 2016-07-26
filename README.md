@@ -43,7 +43,7 @@ composer require proclnas/curl-rox
 #### GET Request
 
 ```php
-require '/vendor/autoload.php'
+require 'vendor/autoload.php'
 
 try {
     
@@ -53,7 +53,7 @@ try {
                     ->getHttpResponse();
                     
     echo $r;
-catch (Exception $e) {
+} catch (Exception $e) {
     echo $e->getMessage();
 }
 ```
@@ -90,7 +90,7 @@ try {
                     ->getHttpResponse(true);
     
     var_dump($r);
-catch (Exception $e) {
+} catch (Exception $e) {
     echo $e->getMessage();
 }
 ```
