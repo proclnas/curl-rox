@@ -43,7 +43,7 @@ composer require proclnas/curl-rox
 #### GET Request
 
 ```php
-require 'vendor/autoload.php'
+require 'vendor/autoload.php';
 
 try {
     
