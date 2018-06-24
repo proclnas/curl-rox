@@ -35,7 +35,7 @@ composer require proclnas/curl-rox
     
 ### Requirements
 
-- PHP: 5.5, 5.6, 7
+- PHP: 5.6, 7
 - php-curl
 
 ### How to use

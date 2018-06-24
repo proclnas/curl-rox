@@ -3,65 +3,101 @@
 namespace CurlRox;
 
 use DiDom\Document;
+use CurlRox\Core\OObject;
+use CurlRox\Core\CurlEnum;
 
-
-class Curl
+class Curl extends OObject
 {
     /**
      *  Add Referer auto to responses with Location
      *
      * @var bool
      */
-    public $auto_referer;
+    public $autoReferer;
 
     /**
      * Uri to be reached.
      *
      * @var string
      */
-    private $uri;
+    public $uri;
 
     /**
      * Context User-Agent
      *
      * @var string
      */
-    private $user_agent;
+    public $userAgent;
 
     /**
      * Cookie file
      *
      * @var string
      */
-    private $cookie_file;
+    public $cookieFile;
 
     /**
      * Post requests payload
      *
      * @var array
      */
-    private $post_payload;
+    public $postPayload;
 
     /**
      * Raw response
      *
      * @var string
      */
-    private $http_response;
+    public $httpResponse;
 
     /**
      * Last request http info
      *
      * @var array
      */
-    private $http_info;
+    public $httpInfo;
 
     /**
      * Http headers
      *
      * @var array
      */
-    private $http_headers;
+    public $httpHeaders;
+
+    /**
+     * Request flag, return if the wcrawler did a request.
+     *
+     * @var bool
+     */
+    public $requested;
+
+    /**
+     * Context timeout
+     *
+     * @var int
+     */
+    public $timeout;
+
+    /**
+     * Change the "Show result" behaviour
+     *
+     * @var bool
+     */
+    public $raw;
+
+    /**
+     * Follow redirects
+     *
+     * @var bool
+     */
+    public $followLocation;
+
+    /**
+     * Check ssl with ca cert
+     *
+     * @var
+     */
+    public $checkSsl;
 
     /**
      * Default curl opts
@@ -71,13 +107,6 @@ class Curl
     private $opts;
 
     /**
-     * Request flag, return if the wcrawler did a request.
-     *
-     * @var bool
-     */
-    private $requested;
-
-    /**
      * Accept encoding
      *
      * @var string
@@ -85,67 +114,33 @@ class Curl
     private $encoding;
 
     /**
-     * Change the "Show result" behaviour
-     *
-     * @var bool
-     */
-    private $raw;
-
-    /**
-     * Follow redirects
-     *
-     * @var bool
-     */
-    private $follow_location;
-
-    /**
-     * Check ssl with ca cert
-     *
-     * @var
-     */
-    private $check_ssl;
-
-    /**
-     * Context timeout
-     *
-     * @var int
-     */
-    private $timeout;
-
-    /**
      * CA certificate (SSL)
      *
      * @var string
      */
-    private $ca_cert;
-
-    const HTTP_CODE_OK             = 200;
-    const HTTP_CODE_REDIRECT       = 302;
-    const HTTP_CODE_NOT_FOUND      = 404;
-    const HTTP_CODE_INTERNAL_ERROR = 502;
+    private $caCert;
 
     /**
      * WebCrawler constructor.
      *
-     * @param string $uri
+     * @param array $config
      * @throws \Exception
      */
-    public function __construct($uri = null)
+    public function __construct($config = [])
     {
         if (!extension_loaded('curl'))
             throw new \Exception(
                 'Extension php_curl not loaded'
             );
 
-        $this->uri             = $uri;
-        $this->cookie_file     = tempnam(sys_get_temp_dir(), 'Curl');
-        $this->user_agent      = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:42.0) Gecko/20100101 Firefox/42.0)';
-        $this->timeout         = 30;
-        $this->follow_location = true;
-        $this->auto_referer    = true;
-        $this->check_ssl       = false;
-        $this->http_headers    = [];
-        $this->raw             = true;
+        $this->cookieFile     = tempnam(sys_get_temp_dir(), 'Curl');
+        $this->userAgent      = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:42.0) Gecko/20100101 Firefox/42.0)';
+        $this->timeout        = 30;
+        $this->followLocation = true;
+        $this->autoReferer    = true;
+        $this->checkSsl       = false;
+        $this->httpHeaders    = [];
+        $this->raw            = true;
     }
 
     /**
@@ -153,299 +148,45 @@ class Curl
      */
     public function __destruct()
     {
-        if (file_exists($this->cookie_file))
-            unlink($this->cookie_file);
-    }
-
-    /**
-     * Add target to the web crawler
-     *
-     * @param string $uri
-     * @return Curl
-     */
-    public function Uri($uri)
-    {
-        $this->uri = $uri;
-        return $this;
-    }
-
-    /**
-     * Return current uri
-     *
-     * @throws \Exception
-     * @return string
-     */
-    public function getUri()
-    {
-        if (is_null($this->uri))
-            throw new \Exception(
-                'Uri not setted yet'
-            );
-
-        return $this->uri;
-    }
-
-    /**
-     * Change cookie file name
-     *
-     * @param string $cookie_file
-     * @return Curl
-     */
-    public function setCookieFile($cookie_file)
-    {
-        $this->cookie_file = $cookie_file;
-        return $this;
-    }
-
-    /**
-     * Get current cookie file
-     *
-     * @return string
-     */
-    public function getCookieFile()
-    {
-        return $this->cookie_file;
-    }
-
-    /**
-     * User agent
-     *
-     * @param string $user_agent
-     */
-    public function setUserAgent($user_agent)
-    {
-        $this->user_agent = $user_agent;
-    }
-
-    /**
-     * Get current user agent
-     *
-     * @return string
-     */
-    public function getUserAgent()
-    {
-        return $this->user_agent;
-    }
-
-    public function raw($raw = true)
-    {
-        $this->raw = $raw;
-        return $this;
-    }
-
-    public function getRaw()
-    {
-        return $this->raw;
-    }
-
-    /**
-     * Disable redirects
-     *
-     * @param $follow_location
-     * @return Curl
-     */
-    public function setFollowLocation($follow_location)
-    {
-        $this->follow_location = $follow_location;
-        return $this;
-    }
-
-    /**
-     * Get follow redirects behaviour
-     *
-     * @return bool
-     */
-    public function getFollowLocation()
-    {
-        return $this->follow_location;
-    }
-
-    /**
-     * Set context timeout
-     *
-     * @param $timeout
-     * @return Curl
-     * @throws \Exception
-     */
-    public function timeout($timeout)
-    {
-        if (!is_int($timeout))
-            throw new \Exception(
-                'Timeout method accept only int values'
-            );
-
-        $this->timeout = $timeout;
-        return $this;
-    }
-
-    /**
-     * Get timeout
-     *
-     * @return int
-     */
-    public function getTimeout()
-    {
-        return $this->timeout;
-    }
-
-    /**
-     * Accept encoding setting
-     *
-     * @param $encoding
-     * @return Curl
-     */
-    public function encoding($encoding)
-    {
-        $this->encoding = $encoding;
-        return $this;
-    }
-
-    /**
-     * Get encoding
-     *
-     * @return string
-     */
-    public function getEncoding()
-    {
-        return $this->encoding;
-    }
-
-    /**
-     * Http headers to be sent
-     *
-     * @param $http_headers
-     * @return Curl
-     */
-    public function httpHeaders($http_headers)
-    {
-        $this->http_headers = $http_headers;
-        return $this;
-    }
-
-    /**
-     * Get http headers
-     *
-     * @return mixed
-     */
-    public function getHttpHeaders()
-    {
-        return $this->http_headers;
-    }
-
-    /**
-     * Set referer automatically to responses with Location header
-     *
-     * @param $auto_referer
-     * @return Curl;
-     */
-    public function setAutoReferer($auto_referer)
-    {
-        $this->auto_referer = $auto_referer;
-        return $this;
-    }
-
-    /**
-     * Get auto-referer setting
-     *
-     * @return bool
-     */
-    public function getAutoReferer()
-    {
-        return $this->auto_referer;
+        if (file_exists($this->cookieFile))
+            unlink($this->cookieFile);
     }
 
     /**
      * Set check ssl and ca cert
      *
-     * @param $ca_cert
+     * @param $caCert
      * @return Curl
      * @throws \Exception
      */
-    public function checkSsl($ca_cert)
+    public function checkSsl($caCert)
     {
-        if (!file_exists($ca_cert))
+        if (!file_exists($caCert))
             throw new \Exception(
-                sprintf('Cert %s not found', $ca_cert)
+                sprintf('Cert %s not found', $caCert)
             );
 
-        $this->ca_cert   = $ca_cert;
-        $this->check_ssl = true;
+        $this->caCert   = $caCert;
+        $this->checkSsl = true;
 
         return $this;
-    }
-
-    public function getCaCert()
-    {
-        return $this->ca_cert;
-    }
-
-    public function getCheckSsl()
-    {
-        return $this->check_ssl;
-    }
-
-    private function prepareOpts($post = false)
-    {
-        $timeout     = $this->getTimeout();
-        $cookie_file = $this->getCookieFile();
-
-        $this->opts = [
-            CURLOPT_RETURNTRANSFER => $this->getRaw(),
-            CURLOPT_FOLLOWLOCATION => $this->getFollowLocation(),
-            CURLOPT_USERAGENT      => $this->getUserAgent(),
-            CURLOPT_TIMEOUT        => $timeout,
-            CURLOPT_CONNECTTIMEOUT => $timeout,
-            CURLOPT_COOKIEJAR      => $cookie_file,
-            CURLOPT_COOKIEFILE     => $cookie_file,
-            CURLOPT_ENCODING       => $this->getEncoding(),
-            CURLOPT_AUTOREFERER    => $this->getAutoReferer(),
-            CURLOPT_HTTPHEADER     => $this->getHttpHeaders(),
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false
-        ];
-
-        if ($this->getCheckSsl()) {
-            $this->opts[CURLOPT_SSL_VERIFYPEER] = true;
-            $this->opts[CURLOPT_SSL_VERIFYHOST] = 2;
-            $this->opts[CURLOPT_CAINFO]         = $this->getCaCert();
-        }
-
-        if ($post !== false) {
-            $this->opts[CURLOPT_POST]       = true;
-            $this->opts[CURLOPT_POSTFIELDS] = $this->getPostPayload();
-        }
-
-        return $this->opts;
     }
 
     /**
      * Post payload to post requests
      *
-     * @param array $post_payload
+     * @param array $postPayload
      * @return Curl
      * @throws \Exception
      */
-    public function setPostPayload($post_payload)
+    public function setPostPayload($postPayload)
     {
-        $this->post_payload = $post_payload;
+        $this->postPayload = $postPayload;
 
-        if (is_array($post_payload))
-            $this->post_payload = http_build_query($post_payload);
+        if (is_array($postPayload))
+            $this->postPayload = http_build_query($postPayload);
 
         return $this;
-    }
-
-    /**
-     * Get current post payload
-     *
-     * @return string
-     */
-    public function getPostPayload()
-    {
-        if (!isset($this->post_payload))
-            return 'post payload not setted yet.' . PHP_EOL;
-
-        return $this->post_payload;
     }
 
     /**
@@ -463,8 +204,8 @@ class Curl
             $ch, $opts
         );
 
-        $this->http_response = curl_exec($ch);
-        $this->http_info     = curl_getinfo($ch);
+        $this->httpResponse = curl_exec($ch);
+        $this->httpInfo     = curl_getinfo($ch);
         $this->requested     = true;
 
         if (curl_errno($ch)) throw new \Exception(curl_error($ch));
@@ -489,8 +230,8 @@ class Curl
             $ch, $opts
         );
 
-        $this->http_response = curl_exec($ch);
-        $this->http_info     = curl_getinfo($ch);
+        $this->httpResponse = curl_exec($ch);
+        $this->httpInfo     = curl_getinfo($ch);
         $this->requested     = true;
 
         if (curl_errno($ch)) throw new \Exception(curl_error($ch));
@@ -509,11 +250,11 @@ class Curl
     public function getHttpInfo($key = null)
     {
         if (!is_null($key)) {
-            if (array_key_exists($key, $this->http_info))
-                return $this->http_info[$key];
+            if (array_key_exists($key, $this->httpInfo))
+                return $this->httpInfo[$key];
         }
 
-        return $this->http_info;
+        return $this->httpInfo;
     }
 
     /**
@@ -524,7 +265,7 @@ class Curl
      */
     public function getHttpResponse($json_decode = false)
     {
-        return ($json_decode !== false) ? json_decode($this->http_response, true) : $this->http_response;
+        return ($json_decode !== false) ? json_decode($this->httpResponse, true) : $this->httpResponse;
     }
 
     /**
@@ -536,7 +277,7 @@ class Curl
     {
         $ok = false;
 
-        if ($this->getHttpInfo('http_code') === self::HTTP_CODE_OK)
+        if ($this->getHttpInfo('http_code') === CurlEnum::HTTP_CODE_OK)
             $ok = true;
 
         return $ok;
@@ -570,18 +311,18 @@ class Curl
                 sprintf ('Error: %s is not a valid callable', $callback)
             );
 
-        $http_response = $this->getHttpResponse();
+        $httpResponse = $this->getHttpResponse();
 
         $didom = new Document;
-        $dom   = $didom->loadHtml($http_response);
+        $dom   = $didom->loadHtml($httpResponse);
 
-        call_user_func_array($callback, [$http_response, $dom, $this]);
+        call_user_func_array($callback, [$httpResponse, $dom, $this]);
 
         return $this;
     }
 
     /**
-     * Write results of $this->http_response
+     * Write results of $this->httpResponse
      *
      * @param string $file_name
      * @return Curl
@@ -599,5 +340,44 @@ class Curl
         );
 
         return $this;
+    }
+
+    /**
+     * Prepare opts to request
+     *
+     * @param boolean $isPost
+     * @return array
+     */
+    private function prepareOpts($isPost = false)
+    {
+        $timeout    = $this->getTimeout();
+        $cookieFile = $this->getCookieFile();
+
+        $this->opts = [
+            CURLOPT_RETURNTRANSFER => $this->getRaw(),
+            CURLOPT_FOLLOWLOCATION => $this->getFollowLocation(),
+            CURLOPT_USERAGENT      => $this->getUserAgent(),
+            CURLOPT_TIMEOUT        => $timeout,
+            CURLOPT_CONNECTTIMEOUT => $timeout,
+            CURLOPT_COOKIEJAR      => $cookieFile,
+            CURLOPT_COOKIEFILE     => $cookieFile,
+            CURLOPT_AUTOREFERER    => $this->getAutoReferer(),
+            CURLOPT_HTTPHEADER     => $this->getHttpHeaders(),
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false
+        ];
+
+        if ($this->getCheckSsl()) {
+            $this->opts[CURLOPT_SSL_VERIFYPEER] = true;
+            $this->opts[CURLOPT_SSL_VERIFYHOST] = 2;
+            $this->opts[CURLOPT_CAINFO]         = $this->getCaCert();
+        }
+
+        if ($isPost !== false) {
+            $this->opts[CURLOPT_POST]       = true;
+            $this->opts[CURLOPT_POSTFIELDS] = $this->getPostPayload();
+        }
+
+        return $this->opts;
     }
 }
