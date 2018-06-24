@@ -13,7 +13,7 @@ PHP Curl Rox Class is an object-oriented wrapper of the PHP cURL extension targe
 - [How to use](#how-to-use)
 - [Methods](#methods)
 - [Todo](#todo)
-- [License] (#license)
+- [License](#license)
 
 ---
 
@@ -35,7 +35,7 @@ composer require proclnas/curl-rox
     
 ### Requirements
 
-- PHP: 5.5, 5.6, 7
+- PHP: 5.6, 7
 - php-curl
 
 ### How to use
@@ -43,14 +43,16 @@ composer require proclnas/curl-rox
 #### GET Request
 
 ```php
-require 'vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
+
+use CurlRox\Curl;
 
 try {
     
-    $webCrawler = new \CurlRox\Curl;
-    $r = $webCrawler->Uri('http://httpbin.org/get')
-                    ->getRequest()
-                    ->getHttpResponse();
+    $curl = new Curl;
+    $curl->setUri('http://httpbin.org/get');
+    $curl->getRequest();
+    $r = $curl->getHttpResponse();
                     
     echo $r;
 } catch (Exception $e) {
@@ -63,10 +65,11 @@ try {
 ```php
 
 try {
-    $webCrawler = new \CurlRox\Curl;
-    $r = $webCrawler->Uri('http://httpbin.org/post')->postRequest(
-            ['name' => 'Proclnas', 'Language' => 'PHP']
-         )->getHttpResponse();
+    $curl = new Curl;
+    $curl->setUri('http://httpbin.org/post');
+    $curl->setPostPayload(['name' => 'Proclnas', 'Language' => 'PHP'])
+    $curl->postRequest();
+    $r = $curl->getHttpResponse();
                     
     echo $r;
 } catch (Exception $e) {
@@ -82,12 +85,13 @@ Passing true to Curl::getHttpResponse automatically calls a json_decode($http_re
 
 try {
     
-    $webCrawler = new \CurlRox\Curl;
-    $r = $webCrawler->Uri('http://client-fake.org/api/clients/get')
-                    ->httpHeaders([
-                        'X-Requested-With', 'XMLHttpRequest'   
-                    ])->getRequest()
-                    ->getHttpResponse(true);
+    $curl = new Curl;
+    $curl->setUri('http://httpbin.org/get');
+    $curl->setHttpHeaders([
+        'X-Requested-With', 'XMLHttpRequest'   
+    ]);
+    $curl->getRequest();
+    $r = $curl->getHttpResponse(true);
     
     var_dump($r);
 } catch (Exception $e) {
@@ -105,11 +109,11 @@ DiDom allows to interact with HTML in several ways, see here to more info: [Dido
 ```php
 
 try {
-    $webCrawler = new \CurlRox\Curl;
-    $webCrawler->Uri('http://google.com')
-               ->getRequest();
+    $curl = new Curl;
+    $curl->setUri('http://google.com');
+    $curl->getRequest();
                
-    $webCrawler->setCallback(function($http_response, \DiDom\Document $dom, \CurlRox\Curl $curl_rox){
+    $curl->setCallback(function($httpResponse, \DiDom\Document $dom, Curl $curlRox){
         $elements = $dom->find('a');
         
         foreach ($elements as $element)
@@ -146,16 +150,15 @@ Link found: /advanced_search?hl=pt&fg=1
 
 try {
     
-    $webCrawler = new \CurlRox\Curl;
-    $r = $webCrawler->Uri('http://fake-links.org/')
-                    ->getRequest();
+    $curl = new Curl;
+    $curl->setUri('http://fake-links.org/');
+    $curl->getRequest();
                     
-$webCrawler->setCallback(function($http_response, \DiDom\Document $dom, \CurlRox\Curl $curl_r){
-        
+    $curl->setCallback(function($http_response, \DiDom\Document $dom, Curl $curlRox){    
         // Check http code
-        if (!$curl_r->ok())
+        if (!$curlRox->ok())
             exit (
-                sprintf('Error reaching %s, http_code: %s' . PHP_EOL, $curl_r->getUri(), $curl_r->getHttpInfo('http_code'))
+                sprintf('Error reaching %s, http_code: %s' . PHP_EOL, $curlRox->getUri(), $curlRox->getHttpInfo('http_code'))
             );
 
         $elements = $dom->find('a');
@@ -174,10 +177,10 @@ $webCrawler->setCallback(function($http_response, \DiDom\Document $dom, \CurlRox
 
 try {
     
-    $webCrawler = new \CurlRox\Curl;
-    $r = $webCrawler->Uri('http://fake-links.org/')
-                    ->getRequest()
-                    ->debugTo('/tmp/review.html');
+    $curl = new Curl;
+    $curl->setUri('http://fake-links.org/');
+    $curl->getRequest();
+    $curl->debugTo('/tmp/review.html');
 
 } catch (Exception $e) {
     echo $e->getMessage();
