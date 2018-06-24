@@ -13,7 +13,7 @@ PHP Curl Rox Class is an object-oriented wrapper of the PHP cURL extension targe
 - [How to use](#how-to-use)
 - [Methods](#methods)
 - [Todo](#todo)
-- [License] (#license)
+- [License](#license)
 
 ---
 

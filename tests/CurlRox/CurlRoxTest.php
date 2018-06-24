@@ -11,67 +11,90 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
     public function testGetAndPostRequest()
     {
         $curl = new \CurlRox\Curl;
-        $r = $curl->Uri('http://127.0.0.1:8000/server.php')
-                  ->getRequest();
-
-        $this->assertNotNull($r->getHttpResponse());
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->getRequest();
+        $response = $curl->getHttpResponse();
+        $this->assertNotNull($response);
 
         $curl = new \CurlRox\Curl;
-        $r = $curl->Uri('http://127.0.0.1:8000/server.php')
-                  ->setPostPayload([
-                      'test' => '1',
-                      'foo' => 'bar'
-                  ])->postRequest();
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->setPostPayload([
+            'test' => '1',
+            'foo' => 'bar'
+        ]);
+        $curl->postRequest();
+        $response = $curl->getHttpResponse();
 
-        $this->assertNotNull($r->getHttpResponse(true));
-        $this->assertContains('foo', $r->getHttpResponse());
+        $this->assertNotNull($response);
+        $this->assertContains('foo', $response);
     }
 
     public function testCookieFile()
     {
         $curl = new \CurlRox\Curl;
-        $curl->Uri('http://127.0.0.1:8000/server.php')
-             ->getRequest();
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->getRequest();
 
-        $cookie_file = $curl->getCookieFile();
-        $this->assertFileExists($cookie_file);
+        $cookieFile = $curl->getCookieFile();
+        $this->assertFileExists($cookieFile);
     }
 
     public function testDomIstanceOf()
     {
         $curl = new \CurlRox\Curl;
-        $curl->Uri('http://127.0.0.1:8000/server.php?test')
-             ->getRequest()
-             ->setCallback(function($http_response, \DiDom\Document $dom, \CurlRox\Curl $curl_rox){
-                $elements = $dom->find('a');
+        $curl->setUri('http://127.0.0.1:8000/server.php?test');
+        $curl->getRequest();
+        $curl->setCallback(function($http_response, \DiDom\Document $dom, \CurlRox\Curl $curl_rox){
+            $elements = $dom->find('a');
 
-                foreach ($elements as $element)
-                    $this->assertInstanceOf('\Didom\Element', $element);
-             });
+            foreach ($elements as $element) {
+                $this->assertInstanceOf('\Didom\Element', $element);
+            }
+        });
     }
 
     public function testJsonResponse()
     {
         $curl = new \CurlRox\Curl;
-        $r = $curl->Uri('http://127.0.0.1:8000/server.php')
-                  ->setPostPayload(['test' => '1', 'foo' => 'bar'])
-                  ->postRequest()
-                  ->getHttpResponse(true);
-
-        $this->assertArrayHasKey('foo', $r);
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->setPostPayload(['test' => '1', 'foo' => 'bar']);
+        $curl->postRequest();
+        $response = $curl->getHttpResponse(true);
+        $this->assertArrayHasKey('foo', $response);
     }
 
     public function testDebugTo()
     {
-
-        $file_name = 'debug.txt';
+        $fileName = 'debug.txt';
         $curl = new \CurlRox\Curl;
-        $curl->Uri('http://127.0.0.1:8000/server.php')
-             ->setPostPayload(['test' => '1', 'foo' => 'bar'])
-             ->postRequest()
-             ->debugTo($file_name);
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->setPostPayload(['test' => '1', 'foo' => 'bar']);
+        $curl->postRequest();
+        $curl->debugTo($fileName);
 
-        $this->assertFileExists($file_name);
-        unlink($file_name);
+        $this->assertFileExists($fileName);
+        unlink($fileName);
+    }
+
+    public function testPublicGettersAndSetters()
+    {
+        $curl = new \CurlRox\Curl;
+        $vars = array_keys(get_object_vars($curl));
+
+        array_map(function($var) use ($curl) {
+            $set = sprintf('set%s', ucfirst($var));
+            $get = sprintf('get%s', ucfirst($var));
+
+            $curl->$set(true);
+            $this->assertInternalType('bool', $curl->$get());
+        }, $vars);
+
+        array_map(function($var) use ($curl) {
+            $set = sprintf('set%s', ucfirst($var));
+            $get = sprintf('get%s', ucfirst($var));
+
+            $curl->$set('foo');
+            $this->assertContains('foo', $curl->$get());
+        }, $vars);
     }
 }
