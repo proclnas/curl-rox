@@ -1,13 +1,16 @@
 <?php
 
-require '../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
+
+use CurlRox\Curl;
 
 try {
-    $webCrawler = new \CurlRox\Curl;
-    $r = $webCrawler->Uri('http://httpbin.org/get')
-                    ->getRequest()
-                    ->getHttpResponse();
-
+    
+    $curl = new Curl;
+    $curl->setUri('http://httpbin.org/get');
+    $curl->getRequest();
+    $r = $curl->getHttpResponse();
+                    
     echo $r;
 } catch (Exception $e) {
     echo $e->getMessage();
