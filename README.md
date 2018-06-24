@@ -192,7 +192,7 @@ try {
 ```php
 Curl::__construct($uri = null)
 Curl::__destruct()
-Curl::Uri($uri)
+Curl::setUri($uri)
 Curl::getUri()
 Curl::setCookieFile($cookie_file);
 Curl::getCookieFile()
