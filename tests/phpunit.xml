@@ -1,7 +1,0 @@
-<phpunit bootstrap="../vendor/autoload.php" colors="true">
-    <testsuites>
-        <testsuite name="CurlRox">
-            <directory suffix=".php">./CurlRox/</directory>
-        </testsuite>
-    </testsuites>
-</phpunit>
