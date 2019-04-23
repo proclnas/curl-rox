@@ -128,11 +128,6 @@ class Curl extends OObject
      */
     public function __construct($config = [])
     {
-        if (!extension_loaded('curl'))
-            throw new \Exception(
-                'Extension php_curl not loaded'
-            );
-
         $this->cookieFile     = tempnam(sys_get_temp_dir(), 'Curl');
         $this->userAgent      = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:42.0) Gecko/20100101 Firefox/42.0)';
         $this->timeout        = 30;

@@ -136,4 +136,15 @@ class CurlRoxTest extends TestCase {
             $this->assertStringContainsString('foo', $curl->$get());
         }, $vars);
     }
+
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function sslShouldFailWithInexistentCaCert()
+    {
+        $this->expectException(\Exception::class);
+        $curl = new \CurlRox\Curl;
+        $curl->checkSsl('not-exists');
+    }
 }
