@@ -3,6 +3,8 @@
 [![Build Status](https://api.travis-ci.org/proclnas/curl-rox.svg?branch=master)](https://travis-ci.org/proclnas/curl-rox)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/proclnas/curl-rox/blob/master/LICENSE)
 [![Packagist](https://img.shields.io/badge/packagist-install-brightgreen.svg)](https://packagist.org/packages/proclnas/curl-rox)
+[![Code Coverage][icon-codecov]][link-codecov]
+
 
 PHP Curl Rox Class is an object-oriented wrapper of the PHP cURL extension targeting webCrawling or similar tasks like api consuming.
 
@@ -35,8 +37,8 @@ composer require proclnas/curl-rox
     
 ### Requirements
 
-- PHP: 5.6, 7
-- php-curl
+- PHP: 7.3
+- ext-curl
 
 ### How to use
 
@@ -88,7 +90,7 @@ try {
     $curl = new Curl;
     $curl->setUri('http://httpbin.org/get');
     $curl->setHttpHeaders([
-        'X-Requested-With', 'XMLHttpRequest'   
+        'X-Requested-With' => 'XMLHttpRequest'   
     ]);
     $curl->getRequest();
     $r = $curl->getHttpResponse(true);
@@ -256,3 +258,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+[icon-codecov]: https://img.shields.io/codecov/c/github/proclnas/curl-rox.svg?style=flat-square
+[link-codecov]: https://codecov.io/gh/proclnas/curl-rox
