@@ -11,11 +11,6 @@ class OObject {
      * @return void|array|string
      */
     function __call($name, $arguments) {
-        if (method_exists($this, $name)) {
-            $this->$name(...$arguments);
-            return;
-        }
-
         if (strpos($name, 'set') !== false) {
             $field = lcfirst(explode('set', $name)[1]);
             if (property_exists($this, $field)) {

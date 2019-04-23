@@ -100,6 +100,13 @@ class Curl extends OObject
     public $checkSsl;
 
     /**
+     * CA certificate (SSL)
+     *
+     * @var string
+     */
+    public $caCert;
+
+    /**
      * Default curl opts
      *
      * @var array
@@ -112,13 +119,6 @@ class Curl extends OObject
      * @var string
      */
     private $encoding;
-
-    /**
-     * CA certificate (SSL)
-     *
-     * @var string
-     */
-    private $caCert;
 
     /**
      * WebCrawler constructor.
@@ -335,6 +335,15 @@ class Curl extends OObject
         );
 
         return $this;
+    }
+
+    public function setHttpHeaders(array $headers)
+    {
+        $headers = array_map(function($key, $value){
+            return sprintf('%s: %s', $key, $value);
+        }, array_keys($headers), array_values($headers));
+
+        $this->httpHeaders = $headers;
     }
 
     /**
