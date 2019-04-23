@@ -1,10 +1,26 @@
 language: php
 
-php:
-  - 7.3
+cache:
+  directories:
+    - $HOME/.composer/cache/files
 
-before_script:
-  - bash tests/before_script.sh
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.2
+    - php: 7.3
+
+before-install:
+  - composer self-update
+
+install:
+  - composer install --prefer-source --no-interaction --dev
 
 script:
-  - bash tests/script.sh
+  - composer test
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+  email: proclnas@gmail.com
