@@ -19,12 +19,15 @@
       "ext-curl": "*",
       "imangazaliev/didom": "^1.6"
     },
-    "require-dev" : {
-      "phpunit/phpunit": "4.5.*"
-    },
     "autoload": {
       "psr-4": {
         "CurlRox\\": "src/CurlRox/"
       }
+    },
+    "scripts": {
+      "test": "phpunit --testdox tests/ --color=always"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8"
     }
 }

@@ -1,14 +1,33 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 
-class CurlRoxTest extends \PHPUnit_Framework_TestCase {
+class CurlRoxTest extends TestCase {
 
-    public function testExtensionsLoaded()
+    /**
+     * @test
+     * @doesNotPerformAssertions
+     */
+    public function objectCanBeInstantiated()
+    {
+        $obj = new \CurlRox\Curl;
+        return $obj;
+    }
+
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function extensionsLoaded()
     {
         $this->assertTrue(extension_loaded('curl'));
     }
 
-    public function testGetAndPostRequest()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function getAndPostRequest()
     {
         $curl = new \CurlRox\Curl;
         $curl->setUri('http://127.0.0.1:8000/server.php');
@@ -26,10 +45,14 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         $response = $curl->getHttpResponse();
 
         $this->assertNotNull($response);
-        $this->assertContains('foo', $response);
+        $this->assertStringContainsString('foo', $response);
     }
 
-    public function testCookieFile()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function cookieFileCanBeCreated()
     {
         $curl = new \CurlRox\Curl;
         $curl->setUri('http://127.0.0.1:8000/server.php');
@@ -39,7 +62,11 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         $this->assertFileExists($cookieFile);
     }
 
-    public function testDomIstanceOf()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function domCanBeReached()
     {
         $curl = new \CurlRox\Curl;
         $curl->setUri('http://127.0.0.1:8000/server.php?test');
@@ -53,7 +80,11 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         });
     }
 
-    public function testJsonResponse()
+    /**
+     * @test
+     * @objectCanBeInstantiated
+     */
+    public function jsonResponse()
     {
         $curl = new \CurlRox\Curl;
         $curl->setUri('http://127.0.0.1:8000/server.php');
@@ -63,7 +94,11 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('foo', $response);
     }
 
-    public function testDebugTo()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function debugCanBeDone()
     {
         $fileName = 'debug.txt';
         $curl = new \CurlRox\Curl;
@@ -76,7 +111,11 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         unlink($fileName);
     }
 
-    public function testPublicGettersAndSetters()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function publicGettersAndSetters()
     {
         $curl = new \CurlRox\Curl;
         $vars = array_keys(get_object_vars($curl));
@@ -86,7 +125,7 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
             $get = sprintf('get%s', ucfirst($var));
 
             $curl->$set(true);
-            $this->assertInternalType('bool', $curl->$get());
+            $this->assertIsBool($curl->$get());
         }, $vars);
 
         array_map(function($var) use ($curl) {
@@ -94,7 +133,7 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
             $get = sprintf('get%s', ucfirst($var));
 
             $curl->$set('foo');
-            $this->assertContains('foo', $curl->$get());
+            $this->assertStringContainsString('foo', $curl->$get());
         }, $vars);
     }
 }

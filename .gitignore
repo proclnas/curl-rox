@@ -1,4 +1,6 @@
-composer.lock
 debug.*
 .idea/
 vendor/
+.phpintel/
+build/
+.phpunit.result.cache
