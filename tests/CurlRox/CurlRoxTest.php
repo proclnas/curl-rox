@@ -1,14 +1,34 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+use \org\bovigo\vfs\vfsStream;
 
-class CurlRoxTest extends \PHPUnit_Framework_TestCase {
+class CurlRoxTest extends TestCase {
 
-    public function testExtensionsLoaded()
+    /**
+     * @test
+     * @doesNotPerformAssertions
+     */
+    public function objectCanBeInstantiated()
+    {
+        $obj = new \CurlRox\Curl;
+        return $obj;
+    }
+
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function extensionsLoaded()
     {
         $this->assertTrue(extension_loaded('curl'));
     }
 
-    public function testGetAndPostRequest()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function getAndPostRequest()
     {
         $curl = new \CurlRox\Curl;
         $curl->setUri('http://127.0.0.1:8000/server.php');
@@ -26,10 +46,14 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         $response = $curl->getHttpResponse();
 
         $this->assertNotNull($response);
-        $this->assertContains('foo', $response);
+        $this->assertStringContainsString('foo', $response);
     }
 
-    public function testCookieFile()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function cookieFileCanBeCreated()
     {
         $curl = new \CurlRox\Curl;
         $curl->setUri('http://127.0.0.1:8000/server.php');
@@ -39,7 +63,11 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         $this->assertFileExists($cookieFile);
     }
 
-    public function testDomIstanceOf()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function domCanBeReached()
     {
         $curl = new \CurlRox\Curl;
         $curl->setUri('http://127.0.0.1:8000/server.php?test');
@@ -53,7 +81,11 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         });
     }
 
-    public function testJsonResponse()
+    /**
+     * @test
+     * @objectCanBeInstantiated
+     */
+    public function jsonResponse()
     {
         $curl = new \CurlRox\Curl;
         $curl->setUri('http://127.0.0.1:8000/server.php');
@@ -63,7 +95,11 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('foo', $response);
     }
 
-    public function testDebugTo()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function debugCanBeDone()
     {
         $fileName = 'debug.txt';
         $curl = new \CurlRox\Curl;
@@ -76,25 +112,113 @@ class CurlRoxTest extends \PHPUnit_Framework_TestCase {
         unlink($fileName);
     }
 
-    public function testPublicGettersAndSetters()
+    /**
+     * @test
+     * @depends objectCanBeInstantiated
+     */
+    public function sslShouldFailWithInexistentCaCert()
+    {
+        $this->expectException(\Exception::class);
+        $curl = new \CurlRox\Curl;
+        $curl->checkSsl('not-exists');
+    }
+
+    /**
+     * @test 
+     * @depends objectCanBeInstantiated
+     */
+    public function getSpecificHttpInfoKey()
     {
         $curl = new \CurlRox\Curl;
-        $vars = array_keys(get_object_vars($curl));
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->getRequest();
+        $this->assertNotNull($curl->getHttpInfo('url'));
+    }
 
-        array_map(function($var) use ($curl) {
-            $set = sprintf('set%s', ucfirst($var));
-            $get = sprintf('get%s', ucfirst($var));
+    /**
+     * @test 
+     * @depends objectCanBeInstantiated
+     */
+    public function httpOkInASimpleRequest()
+    {
+        $curl = new \CurlRox\Curl;
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->getRequest();
+        $this->assertTrue($curl->ok());
+    }
 
-            $curl->$set(true);
-            $this->assertInternalType('bool', $curl->$get());
-        }, $vars);
+    /**
+     * @test 
+     * @depends objectCanBeInstantiated
+     */
+    public function throwExceptionTryingGetLastHttpCodeWithoutRequest()
+    {
+        $this->expectException(\Exception::class);
+        $curl = new \CurlRox\Curl;
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->getLastHttpCode();
+    }
 
-        array_map(function($var) use ($curl) {
-            $set = sprintf('set%s', ucfirst($var));
-            $get = sprintf('get%s', ucfirst($var));
+    /**
+     * @test 
+     * @depends objectCanBeInstantiated
+     */
+    public function retrieveCompleteHttpInfo()
+    {
+        $curl = new \CurlRox\Curl;
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->getRequest();
+        $this->assertNotNull($curl->getHttpInfo());
+    }
 
-            $curl->$set('foo');
-            $this->assertContains('foo', $curl->$get());
-        }, $vars);
+    /**
+     * @test 
+     * @depends objectCanBeInstantiated
+     */
+    public function getLastHttpCodeAfterRequest()
+    {
+        $curl = new \CurlRox\Curl;
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->getRequest();
+        $this->assertNotNull($curl->getLastHttpCode());
+    }
+
+    /**
+     * @test 
+     * @depends objectCanBeInstantiated
+     */
+    public function throwExceptionPassingNoCallableInSetCallback()
+    {
+        $this->expectException(\Exception::class);
+        $curl = new \CurlRox\Curl;
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->getRequest();
+        $curl->setCallback(1337);
+    }
+
+    /**
+     * @test 
+     * @depends objectCanBeInstantiated
+     */
+    public function configureCaCertFile()
+    {
+        vfsStream::setup('tmpDir', null, ['data' => 'foobar']);
+        $fakeCaCert = 'vfs://tmpDir/data';
+        $curl = new \CurlRox\Curl;
+        $curl->setUri('http://127.0.0.1:8000/server.php');
+        $curl->checkSsl($fakeCaCert);
+        $curl->getRequest();
+        $this->assertTrue($curl->getCheckSsl());
+    }
+
+    /**
+     * @test 
+     * @depends objectCanBeInstantiated
+     */
+    public function existentGetAndSetterShouldBeCalledByMagicCall()
+    {
+        $curl = new \CurlRox\Curl;
+        $curl->setHttpHeaders(['foo' => 'bar', 'ok' => 'ok']);
+        $this->assertNotNull($curl->getHttpHeaders());
     }
 }

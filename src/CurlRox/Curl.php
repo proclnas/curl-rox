@@ -100,6 +100,13 @@ class Curl extends OObject
     public $checkSsl;
 
     /**
+     * CA certificate (SSL)
+     *
+     * @var string
+     */
+    public $caCert;
+
+    /**
      * Default curl opts
      *
      * @var array
@@ -114,13 +121,6 @@ class Curl extends OObject
     private $encoding;
 
     /**
-     * CA certificate (SSL)
-     *
-     * @var string
-     */
-    private $caCert;
-
-    /**
      * WebCrawler constructor.
      *
      * @param array $config
@@ -128,11 +128,6 @@ class Curl extends OObject
      */
     public function __construct($config = [])
     {
-        if (!extension_loaded('curl'))
-            throw new \Exception(
-                'Extension php_curl not loaded'
-            );
-
         $this->cookieFile     = tempnam(sys_get_temp_dir(), 'Curl');
         $this->userAgent      = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:42.0) Gecko/20100101 Firefox/42.0)';
         $this->timeout        = 30;
@@ -340,6 +335,15 @@ class Curl extends OObject
         );
 
         return $this;
+    }
+
+    public function setHttpHeaders(array $headers)
+    {
+        $headers = array_map(function($key, $value){
+            return sprintf('%s: %s', $key, $value);
+        }, array_keys($headers), array_values($headers));
+
+        $this->httpHeaders = $headers;
     }
 
     /**
